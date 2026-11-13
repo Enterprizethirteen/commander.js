@@ -4,9 +4,8 @@
 //    Other option types, negatable boolean
 //    You can specify a boolean option long name with a leading `no-` to make it true by default and able to be negated.
 
-// const commander = require('commander'); // (normal include)
-const commander = require('../'); // include commander in git clone of commander repo
-const program = new commander.Command();
+import { Command } from 'commander';
+const program = new Command();
 
 program
   .option('--no-sauce', 'Remove sauce')
@@ -17,11 +16,12 @@ program.parse();
 
 const options = program.opts();
 const sauceStr = options.sauce ? 'sauce' : 'no sauce';
-const cheeseStr = (options.cheese === false) ? 'no cheese' : `${options.cheese} cheese`;
+const cheeseStr =
+  options.cheese === false ? 'no cheese' : `${options.cheese} cheese`;
 console.log(`You ordered a pizza with ${sauceStr} and ${cheeseStr}`);
 
 // Try the following:
 //    node options-negatable.js
-//    node options-negatable.js --sauce
+//    node options-negatable.js --no-sauce
 //    node options-negatable.js --cheese=blue
 //    node options-negatable.js --no-sauce --no-cheese

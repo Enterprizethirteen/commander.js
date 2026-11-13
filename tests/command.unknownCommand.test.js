@@ -1,81 +1,57 @@
-const commander = require('../');
+import { createTestCommand } from './testHelpers.js';
+import { test, describe } from 'node:test';
+import assert from 'node:assert/strict';
 
-describe('unknownCommand', () => {
-  // Optional. Use internal knowledge to suppress output to keep test output clean.
-  let writeErrorSpy;
-
-  beforeAll(() => {
-    writeErrorSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => { });
-  });
-
-  afterEach(() => {
-    writeErrorSpy.mockClear();
-  });
-
-  afterAll(() => {
-    writeErrorSpy.mockRestore();
-  });
-
-  test('when unknown argument in simple program then no error', () => {
-    const program = new commander.Command();
-    program.exitOverride();
-    expect(() => {
-      program.parse('node test.js unknown'.split(' '));
-    }).not.toThrow();
+describe('parsing unknown command', () => {
+  test('when unknown argument in simple program then error', () => {
+    const program = createTestCommand();
+    assert.throws(
+      () => {
+        program.parse('node test.js unknown'.split(' '));
+      },
+      { code: 'commander.excessArguments' },
+    );
   });
 
   test('when unknown command but action handler taking arg then no error', () => {
-    const program = new commander.Command();
-    program
-      .exitOverride()
-      .command('sub');
-    program
-      .argument('[args...]')
-      .action(() => { });
-    expect(() => {
+    const program = createTestCommand();
+    program.command('sub');
+    program.argument('[args...]').action(() => {});
+    assert.doesNotThrow(() => {
       program.parse('node test.js unknown'.split(' '));
-    }).not.toThrow();
+    });
   });
 
   test('when unknown command but listener then no error', () => {
-    const program = new commander.Command();
-    program
-      .exitOverride()
-      .command('sub');
-    program
-      .on('command:*', () => { });
-    expect(() => {
+    const program = createTestCommand();
+    program.command('sub');
+    program.on('command:*', () => {});
+    assert.doesNotThrow(() => {
       program.parse('node test.js unknown'.split(' '));
-    }).not.toThrow();
+    });
   });
 
   test('when unknown command then error', () => {
-    const program = new commander.Command();
-    program
-      .exitOverride()
-      .command('sub');
-    let caughtErr;
-    try {
-      program.parse('node test.js unknown'.split(' '));
-    } catch (err) {
-      caughtErr = err;
-    }
-    expect(caughtErr.code).toBe('commander.unknownCommand');
+    const program = createTestCommand();
+    program.command('sub');
+    assert.throws(
+      () => {
+        program.parse('node test.js unknown'.split(' '));
+      },
+      { code: 'commander.unknownCommand' },
+    );
   });
 
   test('when unknown command and unknown option then error is for unknown command', () => {
     //  The unknown command is more useful since the option is for an unknown command (and might be
     // ok if the command had been correctly spelled, say).
-    const program = new commander.Command();
-    program
-      .exitOverride()
-      .command('sub');
-    let caughtErr;
-    try {
-      program.parse('node test.js sbu --silly'.split(' '));
-    } catch (err) {
-      caughtErr = err;
-    }
-    expect(caughtErr.code).toBe('commander.unknownCommand');
+    const program = createTestCommand();
+    program.command('sub');
+    assert.throws(
+      () => {
+        program.parse('node test.js sbu --silly'.split(' '));
+      },
+      { code: 'commander.unknownCommand' },
+    );
   });
 });

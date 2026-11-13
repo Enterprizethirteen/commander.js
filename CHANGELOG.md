@@ -2,11 +2,238 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- markdownlint-disable MD024 -->
 <!-- markdownlint-disable MD004 -->
+
+## [15.1.0] (2026-11-07)
+
+### Fixed
+
+- accept uppercase E exponent in negative number arguments ([#2544])
+- support Unicode variadic option placeholders ([#2615])
+- increment node inspector port for `--inspect-wait` when spawn an executable subcommand ([#2630])
+- increment node inspector port for IPv6 hosts when spawn an executable subcommand ([#2636])
+- preserve the help option's group when a conflicting flag is hidden ([#2637])
+- global option values with unknown source should mask local option value source in `cmd.getOptionValueSourceWithGlobals()` ([#2653])
+
+### Changed
+
+- limit Pull Requests to reduce volume and improve quality ([#2646])
+- undeprecate `InvalidOptionArgumentError` ([#2661])
+
+### Deprecated
+
+- `cmd.storeOptionsAsProperties()` ([#2561])
+- `cmd.combineFlagAndOptionalValue()` ([#2660])
+
+## [15.0.0] (2026-05-29)
+
+Commander 15 is ESM only. This is expected to be seamless for ESM consumers, but some CommonJS consumers may hit issues with tooling requiring configuration for ESM-only dependencies. See Migration Tips below.
+
+The release of Commander 15 moves Commander 14 into maintenance. Commander 14 will get security updates for
+12 months (to May 2027). For more info see [Release Policy](./docs/release-policy.md).
+
+### Added
+
+- show excess command-arguments in error message ([#2384])
+
+### Fixed
+
+- *Breaking:* only lone `--no-*` option sets default option value to `true`, default not implicitly set when define both positive and negative option in either order ([#2405])
+- update example to use compatible character for MINGW64 ([#2475])
+
+### Changed
+
+- *Breaking:* migrated Commander implementation from CommonJS to ESM ([#2464])
+- *Breaking:* Commander 15 requires Node.js v22.12.0 or higher (for `require(esm)`).
+- dev: switch tests from Jest to `node:test` test runner ([#2463])
+
+### Deleted
+
+- *Breaking:* removed deprecated export of `commander/esm.mjs` ([#2464])
+
+### Migration Tips
+
+Commander 15 is ESM only, but this does not mean you need to migrate to ESM to use it. Importing ESM from CommonJS is
+supported by Node.js, and Bun, and Deno. Hopefully it Just Works for you! However, you may be using a different runtime or
+some other part of your setup that may not yet natively support importing ESM from CommonJS, such as your testing framework
+or bundler.
+
+If you have problems using Commander 15 in your environment, one option is stay on Commander 14 for now. Commander 14 will
+get security updates until May 2027 and things will hopefully improve for your setup in the meantime.
+
+## [15.0.0-0] (2026-02-22)
+
+(Released as 15.0.0)
+
+## [14.0.3] (2026-01-31)
+
+### Added
+
+- Release Policy document ([#2462])
+  
+### Changes
+
+- old major versions now supported for 12 months instead of just previous major version, to give predictable end-of-life date ([#2462])
+- clarify typing for deprecated callback parameter to `.outputHelp()` ([#2427])
+- simple readability improvements to README ([#2465])
+  
+## [14.0.2] (2025-10-25)
+
+### Changed
+
+- improve negative number auto-detection test ([#2428])
+- update (dev) dependencies
+
+## [14.0.1] (2025-09-12)
+
+### Fixed
+
+- broken markdown link in README ([#2369])
+
+### Changed
+
+- improve code readability by using optional chaining ([#2394])
+- use more idiomatic code with object spread instead of `Object.assign()` ([#2395])
+- improve code readability using `string.endsWith()` instead of `string.slice()` ([#2396])
+- refactor `.parseOptions()` to process args array in-place ([#2409])
+- change private variadic support routines from `._concatValue()` to `._collectValue()` (change code from `array.concat()` to `array.push()`) ([#2410])
+- update (dev) dependencies
+
+## [14.0.0] (2025-05-18)
+
+### Added
+
+- support for groups of options and commands in the help using low-level `.helpGroup()` on `Option` and `Command`, and higher-level `.optionsGroup()` and `.commandsGroup()` which can be used in chaining way to specify group title for following options/commands ([#2328])
+- support for unescaped negative numbers as option-arguments and command-arguments ([#2339])
+- TypeScript: add `parseArg` property to `Argument` class ([#2359])
+
+### Fixed
+
+- remove bogus leading space in help when option has default value but not a description ([#2348])
+- `.configureOutput()` now makes copy of settings instead of modifying in-place, fixing side-effects ([#2350])
+
+### Changed
+
+- *Breaking:* Commander 14 requires Node.js v20 or higher
+- internal refactor of `Help` class adding `.formatItemList()` and `.groupItems()` methods ([#2328])
+
+## [13.1.0] (2025-01-21)
+
+### Added
+
+- support a pair of long option flags to allow a memorable shortened flag, like `.option('--ws, --workspace')` ([#2312])
+
+## [13.0.0] (2024-12-30)
+
+### Added
+
+- support multiple calls to `.parse()` with default settings ([#2299])
+- add `.saveStateBeforeParse()` and `.restoreStateBeforeParse()` for use by subclasses ([#2299])
+- style routines like `styleTitle()` to add color to help using `.configureHelp()` or Help subclass ([#2251])
+- color related support in `.configureOutput()` for `getOutHasColors()`, `getErrHasColors()`, and `stripColor()` ([#2251])
+- Help property for `minWidthToWrap` ([#2251])
+- Help methods for `displayWidth()`, `boxWrap()`, `preformatted()` et al ([#2251])
+
+### Changed
+
+- *Breaking*: excess command-arguments cause an error by default, see migration tips ([#2223])
+- *Breaking*: throw during Option construction for unsupported option flags, like multiple characters after single `-` ([#2270])
+  - note: support for dual long option flags added in Commander 13.1
+- *Breaking*: throw on multiple calls to `.parse()` if `storeOptionsAsProperties: true` ([#2299])
+- TypeScript: include implicit `this` in parameters for action handler callback ([#2197])
+
+### Deleted
+
+- *Breaking*: `Help.wrap()` refactored into `formatItem()` and `boxWrap()` ([#2251])
+
+### Migration Tips
+
+**Excess command-arguments**
+
+It is now an error for the user to specify more command-arguments than are expected. (`allowExcessArguments` is now false by default.)
+
+Old code:
+
+```js
+program.option('-p, --port <number>', 'port number');
+program.action((options) => {
+  console.log(program.args);
+});
+```
+
+Now shows an error:
+
+```console
+$ node example.js a b c
+error: too many arguments. Expected 0 arguments but got 3.
+```
+
+You can declare the expected arguments. The help will then be more accurate too. Note that declaring
+new arguments will change what is passed to the action handler.
+
+```js
+program.option('-p, --port <number>', 'port number');
+program.argument('[args...]', 'remote command and arguments'); // expecting zero or more arguments
+program.action((args, options) => {
+  console.log(args);
+});
+```
+
+Or you could suppress the error, useful for minimising changes in legacy code.
+
+```js
+program.option('-p, --port', 'port number');
+program.allowExcessArguments();
+program.action((options) => {
+  console.log(program.args);
+});
+```
+
+**Stricter option flag parsing**
+
+Commander now throws an error for option flag combinations that are not supported.
+In particular, a short flag with multiple characters is now an error.
+
+```js
+program.option('-ws, --workspace'); // throws error
+```
+
+A short option has a single character:
+
+```js
+program.option('-w, --workspace');
+```
+
+Or from Commander 13.1 you can have an extra long flag instead of a short flag to allow a more memorable shortcut for the full name:
+
+```js
+program.option('--ws, --workspace');
+```
+
+## [13.0.0-0] (2024-12-07)
+
+(Released in 13.0.0)
+
+## [12.1.0] (2024-05-18)
+
+### Added
+
+- auto-detect special node flags `node --eval` and `node --print` when call `.parse()` with no arguments ([#2164])
+
+### Changed
+
+- prefix require of Node.js core modules with `node:` ([#2170])
+- format source files with Prettier ([#2180])
+- switch from StandardJS to directly calling ESLint for linting ([#2153])
+- extend security support for previous major version of Commander ([#2150])
+
+### Removed
+
+- removed unimplemented Option.fullDescription from TypeScript definition ([#2191])
 
 ## [12.0.0] (2024-02-03)
 
@@ -295,7 +522,7 @@ A couple of configuration problems now throw an error, which will pick up issues
 - *Breaking:* `CommanderError` code `commander.invalidOptionArgument` renamed `commander.invalidArgument` ([#1508])
 - *Breaking:* TypeScript declaration for `.addTextHelp()` callback no longer allows result of `undefined`, now just `string` ([#1516])
 - refactor `index.tab` into a file per class ([#1522])
-- remove help suggestion from "unknown command" error message (see `.showHelpAfteError()`) ([#1534])
+- remove help suggestion from "unknown command" error message (see `.showHelpAfterError()`) ([#1534])
 - `Command` property `.arg` initialised to empty array (was previously undefined) ([#1529])
 - update dependencies
 
@@ -1118,7 +1345,7 @@ program
 
 ## 0.2.0 / 2011-09-26
 
-* Allow for defaults that are not just boolean. Default peassignment only occurs for --no-*, optional, and required arguments. [Jim Isaacs]
+* Allow for defaults that are not just boolean. Default reassignment only occurs for --no-*, optional, and required arguments. [Jim Isaacs]
 
 ## 0.1.0 / 2011-08-24
 
@@ -1262,6 +1489,48 @@ program
 [#2055]: https://github.com/tj/commander.js/pull/2055
 [#2059]: https://github.com/tj/commander.js/pull/2059
 [#2087]: https://github.com/tj/commander.js/pull/2087
+[#2150]: https://github.com/tj/commander.js/pull/2150
+[#2153]: https://github.com/tj/commander.js/pull/2153
+[#2164]: https://github.com/tj/commander.js/pull/2164
+[#2170]: https://github.com/tj/commander.js/pull/2170
+[#2180]: https://github.com/tj/commander.js/pull/2180
+[#2191]: https://github.com/tj/commander.js/pull/2191
+[#2197]: https://github.com/tj/commander.js/pull/2197
+[#2223]: https://github.com/tj/commander.js/pull/2223
+[#2251]: https://github.com/tj/commander.js/pull/2251
+[#2270]: https://github.com/tj/commander.js/pull/2270
+[#2299]: https://github.com/tj/commander.js/pull/2299
+[#2312]: https://github.com/tj/commander.js/pull/2312
+[#2328]: https://github.com/tj/commander.js/pull/2328
+[#2339]: https://github.com/tj/commander.js/pull/2339
+[#2348]: https://github.com/tj/commander.js/pull/2348
+[#2350]: https://github.com/tj/commander.js/pull/2350
+[#2359]: https://github.com/tj/commander.js/pull/2359
+[#2369]: https://github.com/tj/commander.js/pull/2369
+[#2384]: https://github.com/tj/commander.js/pull/2384
+[#2394]: https://github.com/tj/commander.js/pull/2394
+[#2395]: https://github.com/tj/commander.js/pull/2395
+[#2396]: https://github.com/tj/commander.js/pull/2396
+[#2405]: https://github.com/tj/commander.js/pull/2405
+[#2409]: https://github.com/tj/commander.js/pull/2409
+[#2410]: https://github.com/tj/commander.js/pull/2410
+[#2427]: https://github.com/tj/commander.js/pull/2427
+[#2428]: https://github.com/tj/commander.js/pull/2428
+[#2462]: https://github.com/tj/commander.js/pull/2462
+[#2463]: https://github.com/tj/commander.js/pull/2463
+[#2464]: https://github.com/tj/commander.js/pull/2464
+[#2465]: https://github.com/tj/commander.js/pull/2465
+[#2475]: https://github.com/tj/commander.js/pull/2475
+[#2544]: https://github.com/tj/commander.js/pull/2544
+[#2561]: https://github.com/tj/commander.js/pull/2561
+[#2615]: https://github.com/tj/commander.js/pull/2615
+[#2630]: https://github.com/tj/commander.js/pull/2630
+[#2636]: https://github.com/tj/commander.js/pull/2636
+[#2637]: https://github.com/tj/commander.js/pull/2637
+[#2646]: https://github.com/tj/commander.js/pull/2646
+[#2653]: https://github.com/tj/commander.js/pull/2653
+[#2660]: https://github.com/tj/commander.js/pull/2660
+[#2661]: https://github.com/tj/commander.js/pull/2661
 
 <!-- Referenced in 5.x -->
 [#1]: https://github.com/tj/commander.js/issues/1
@@ -1341,6 +1610,17 @@ program
 [#1028]: https://github.com/tj/commander.js/pull/1028
 
 [Unreleased]: https://github.com/tj/commander.js/compare/master...develop
+[15.1.0]: https://github.com/tj/commander.js/compare/v15.0.0...v15.1.0
+[15.0.0]: https://github.com/tj/commander.js/compare/v14.0.3...v15.0.0
+[15.0.0-0]: https://github.com/tj/commander.js/compare/v14.0.3...v15.0.0-0
+[14.0.3]: https://github.com/tj/commander.js/compare/v14.0.2...v14.0.3
+[14.0.2]: https://github.com/tj/commander.js/compare/v14.0.1...v14.0.2
+[14.0.1]: https://github.com/tj/commander.js/compare/v14.0.0...v14.0.1
+[14.0.0]: https://github.com/tj/commander.js/compare/v13.1.0...v14.0.0
+[13.1.0]: https://github.com/tj/commander.js/compare/v13.0.0...v13.1.0
+[13.0.0]: https://github.com/tj/commander.js/compare/v12.1.0...v13.0.0
+[13.0.0-0]: https://github.com/tj/commander.js/compare/v12.1.0...v13.0.0-0
+[12.1.0]: https://github.com/tj/commander.js/compare/v12.0.0...v12.1.0
 [12.0.0]: https://github.com/tj/commander.js/compare/v11.1.0...v12.0.0
 [12.0.0-1]: https://github.com/tj/commander.js/compare/v12.0.0-0...v12.0.0-1
 [12.0.0-0]: https://github.com/tj/commander.js/compare/v11.1.0...v12.0.0-0

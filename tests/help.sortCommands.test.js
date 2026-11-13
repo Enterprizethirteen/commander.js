@@ -1,9 +1,11 @@
-const commander = require('../');
+import * as commander from '../index.js';
+import { test, describe } from 'node:test';
+import assert from 'node:assert/strict';
 
 // These are tests of the Help class, not of the Command help.
 // There is some overlap with the higher level Command tests (which predate Help).
 
-describe('sortSubcommands', () => {
+describe('Help.configureHelp({ sortSubcommands: true })', () => {
   test('when unsorted then commands in order added', () => {
     const program = new commander.Command();
     program
@@ -11,8 +13,10 @@ describe('sortSubcommands', () => {
       .command('aaa', 'desc')
       .command('bbb', 'desc');
     const helper = program.createHelp();
-    const visibleCommandNames = helper.visibleCommands(program).map(cmd => cmd.name());
-    expect(visibleCommandNames).toEqual(['ccc', 'aaa', 'bbb', 'help']);
+    const visibleCommandNames = helper
+      .visibleCommands(program)
+      .map((cmd) => cmd.name());
+    assert.deepEqual(visibleCommandNames, ['ccc', 'aaa', 'bbb', 'help']);
   });
 
   test('when sortSubcommands:true then commands sorted', () => {
@@ -23,7 +27,9 @@ describe('sortSubcommands', () => {
       .command('aaa', 'desc')
       .command('bbb', 'desc');
     const helper = program.createHelp();
-    const visibleCommandNames = helper.visibleCommands(program).map(cmd => cmd.name());
-    expect(visibleCommandNames).toEqual(['aaa', 'bbb', 'ccc', 'help']);
+    const visibleCommandNames = helper
+      .visibleCommands(program)
+      .map((cmd) => cmd.name());
+    assert.deepEqual(visibleCommandNames, ['aaa', 'bbb', 'ccc', 'help']);
   });
 });

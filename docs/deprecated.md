@@ -4,22 +4,23 @@ These features are deprecated, which means they may go away in a future major ve
 They are currently still available for backwards compatibility, but should not be used in new code.
 
 - [Deprecated](#deprecated)
-    - [RegExp .option() parameter](#regexp-option-parameter)
+    - [RegExp cmd.option() parameter](#regexp-cmdoption-parameter)
     - [noHelp](#nohelp)
-    - [Callback to .help() and .outputHelp()](#callback-to-help-and-outputhelp)
-    - [.on('--help')](#on--help)
-    - [.on('command:\*')](#oncommand)
-    - [.command('\*')](#command)
+    - [Callback to cmd.help() and cmd.outputHelp()](#callback-to-cmdhelp-and-cmdoutputhelp)
+    - [cmd.on('--help')](#cmdon--help)
+    - [cmd.on('command:\*')](#cmdoncommand)
+    - [cmd.command('\*')](#cmdcommand)
     - [cmd.description(cmdDescription, argDescriptions)](#cmddescriptioncmddescription-argdescriptions)
-    - [InvalidOptionArgumentError](#invalidoptionargumenterror)
-    - [Short option flag longer than a single character](#short-option-flag-longer-than-a-single-character)
-    - [Import from `commander/esm.mjs`](#import-from-commanderesmmjs)
     - [cmd.\_args](#cmd_args)
-    - [.addHelpCommand(string|boolean|undefined)](#addhelpcommandstringbooleanundefined)
+    - [cmd.addHelpCommand(string|boolean|undefined)](#cmdaddhelpcommandstringbooleanundefined)
+    - [cmd.storeOptionsAsProperties()](#cmdstoreoptionsasproperties)
+    - [cmd.combineFlagAndOptionalValue(false)](#cmdcombineflagandoptionalvaluefalse)
   - [Removed](#removed)
+    - [Short option flag longer than a single character](#short-option-flag-longer-than-a-single-character)
     - [Default import of global Command object](#default-import-of-global-command-object)
+    - [Import from `commander/esm.mjs`](#import-from-commanderesmmjs)
 
-### RegExp .option() parameter
+### RegExp cmd.option() parameter
 
 The `.option()` method allowed a RegExp as the third parameter to restrict what values were accepted.
 
@@ -41,7 +42,7 @@ program.command('example', 'example command', { noHelp: true });
 
 The option was renamed `hidden` in Commander v5.1. Deprecated from Commander v7.
 
-### Callback to .help() and .outputHelp()
+### Callback to cmd.help() and cmd.outputHelp()
 
 These routines allowed a callback parameter to process the built-in help before display.
 
@@ -59,7 +60,7 @@ console.error(colors.red(program.helpInformation()));
 
 Deprecated from Commander v7.
 
-### .on('--help')
+### cmd.on('--help')
 
 This was the way to add custom help after the built-in help. From Commander v3.0.0 this used the custom long help option flags, if changed.
 
@@ -84,7 +85,7 @@ Examples:
 
 Deprecated from Commander v7.
 
-### .on('command:*')
+### cmd.on('command:*')
 
 This was emitted when the command argument did not match a known subcommand (as part of the implementation of `.command('*')`).
 
@@ -95,7 +96,7 @@ or for custom behaviour catch the `commander.unknownCommand` error.
 
 Deprecated from Commander v8.3.
 
-### .command('*')
+### cmd.command('*')
 
 This was used to add a default command to the program.
 
@@ -138,58 +139,6 @@ program
 
 Deprecated from Commander v8.
 
-### InvalidOptionArgumentError
-
-This was used for throwing an error from custom option processing, for a nice error message.
-
-```js
-function myParseInt(value, dummyPrevious) {
-  // parseInt takes a string and a radix
-  const parsedValue = parseInt(value, 10);
-  if (isNaN(parsedValue)) {
-    throw new commander.InvalidOptionArgumentError('Not a number.');
-  }
-  return parsedValue;
-}
-```
-
-The replacement is `InvalidArgumentError` since can be used now for custom command-argument processing too.
-
-```js
-function myParseInt(value, dummyPrevious) {
-  // parseInt takes a string and a radix
-  const parsedValue = parseInt(value, 10);
-  if (isNaN(parsedValue)) {
-    throw new commander.InvalidArgumentError('Not a number.');
-  }
-  return parsedValue;
-}
-```
-
-Deprecated from Commander v8.
-
-### Short option flag longer than a single character
-
-Short option flags like `-ws` were never supported, but the old README did not make this clear. The README now states that short options are a single character.
-
-README updated in Commander v3. Deprecated from Commander v9.
-
-### Import from `commander/esm.mjs`
-
-The first support for named imports required an explicit entry file.
-
-```js
-import { Command } from 'commander/esm.mjs';
-```
-
-This is no longer required, just import directly from the module.
-
-```js
-import { Command } from 'commander';
-```
-
-README updated in Commander v9. Deprecated from Commander v9.
-
 ### cmd._args
 
 This was always private, but was previously the only way to access the command `Argument` array.
@@ -206,7 +155,7 @@ const registeredArguments = program.registeredArguments;
 
 Deprecated from Commander v11.
 
-### .addHelpCommand(string|boolean|undefined)
+### cmd.addHelpCommand(string|boolean|undefined)
 
 This was originally used with a variety of parameters, but not by passing a Command object despite the "add" name.
 
@@ -225,9 +174,57 @@ program.helpCommand('assist', 'show assistance');
 program.helpCommand(false);
 
 program.addHelpCommand(new Command('assist').argument('[command]').description('show assistance'));
-
 ```
+
+- Removed from README in Commander v12.
+- Deprecated from Commander v12.
+
+### cmd.storeOptionsAsProperties()
+
+Before Commander 7, the option values were stored as properties on the command,
+and the command was passed to the action handler after the command-arguments.
+You could revert to the old behaviour to run unmodified legacy code by using `.storeOptionsAsProperties()`.
+
+```js
+program.storeOptionsAsProperties();
+program.option('-d, --debug');
+program.parse();
+// Legacy code
+if (program.debug) showDiagnostics();
+```
+
+Since Commander 7, the properies are stored separately. The options are available
+from a command using `.opts()`. The action handler is passed the options after the command-arguments,
+followed by the command.
+
+```js
+// New code
+const options = program.opts();
+if (options.debug) showDiagnostics();
+```
+
+See more in the Migration Tips for Commander v7.0.0  in the [CHANGELOG](../CHANGELOG.md#700-2021-01-15)
+or online in the [Release Notes](https://github.com/tj/commander.js/releases/tag/v7.0.0).
+
+- Removed from README in Commander v15.
+- Deprecated from Commander v15.
+
+### cmd.combineFlagAndOptionalValue(false)
+
+This was added in Commander v6 to ease upgrade path from older versions of Commander.
+
+- Deprecated from Commander v15.
+
 ## Removed
+
+### Short option flag longer than a single character
+
+Short option flags like `-ws` were never supported, but the old README did not make this clear. The README now states that short options are a single character.
+
+- README updated in Commander v3.
+- Deprecated from Commander v9.
+- Throws an exception in Commander v13. Deprecated and gone!
+- Replacement added in Commander v13.1 with support for dual long options, like `--ws, --workspace`.
 
 ### Default import of global Command object
 
@@ -250,3 +247,20 @@ const program = new Command()
 - Deprecated from Commander v7.
 - Removed from TypeScript declarations in Commander v8.
 - Removed from CommonJS in Commander v12. Deprecated and gone!
+
+### Import from `commander/esm.mjs`
+
+The first support for named imports required an explicit entry file.
+
+```js
+import { Command } from 'commander/esm.mjs';
+```
+
+This is no longer required, just import directly from the module.
+
+```js
+import { Command } from 'commander';
+```
+
+- README updated in Commander v9. Deprecated from Commander v9.
+- Deleted in Command v15.  Deprecated and gone!

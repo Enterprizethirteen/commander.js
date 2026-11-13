@@ -43,7 +43,6 @@
   - [零碎知识](#%e9%9b%b6%e7%a2%8e%e7%9f%a5%e8%af%86)
     - [.parse() 和 .parseAsync()](#parse-%e5%92%8c-parseasync)
     - [解析配置](#%E8%A7%A3%E6%9E%90%E9%85%8D%E7%BD%AE)
-    - [作为属性的遗留选项](#%E4%BD%9C%E4%B8%BA%E5%B1%9E%E6%80%A7%E7%9A%84%E9%81%97%E7%95%99%E9%80%89%E9%A1%B9)
     - [TypeScript](#typescript)
     - [createCommand()](#createCommand)
     - [Node 选项，如 --harmony](#node-%E9%80%89%E9%A1%B9%EF%BC%8C%E5%A6%82---harmony)
@@ -52,7 +51,6 @@
     - [重写退出和输出](#%E9%87%8D%E5%86%99%E9%80%80%E5%87%BA%E5%92%8C%E8%BE%93%E5%87%BA)
     - [其他文档](#%E5%85%B6%E4%BB%96%E6%96%87%E6%A1%A3)
   - [支持](#%e6%94%af%e6%8c%81)
-    - [企业使用 Commander](#%e4%bc%81%e4%b8%9a%e4%bd%bf%e7%94%a8-commander)
 
 关于本文档中使用的术语，请见[术语表](./docs/zh-CN/%E6%9C%AF%E8%AF%AD%E8%A1%A8.md)
 
@@ -77,7 +75,8 @@ const { program } = require('commander');
 
 program
   .option('--first')
-  .option('-s, --separator <char>');
+  .option('-s, --separator <char>')
+  .argument('<string>');
 
 program.parse();
 
@@ -87,10 +86,10 @@ console.log(program.args[0].split(options.separator, limit));
 ```
 
 ```console
-$ node split.js -s / --fits a/b/c
+$ node split.js -s - --fits a-b-c
 error: unknown option '--fits'
 (Did you mean --first?)
-$ node split.js -s / --first a/b/c
+$ node split.js -s - --first a-b-c
 [ 'a' ]
 ```
 
@@ -134,7 +133,7 @@ Options:
   -s, --separator <char>  separator character (default: ",")
   -h, --help              display help for command
 
-$ node string-util.js split --separator=/ a/b/c
+$ node string-util.js split --separator=- a-b-c
 [ 'a', 'b', 'c' ]
 ```
 
@@ -348,7 +347,8 @@ error: required option '-c, --cheese <type>' not specified
 ```js
 program
   .option('-n, --number <numbers...>', 'specify numbers')
-  .option('-l, --letter [letters...]', 'specify letters');
+  .option('-l, --letter [letters...]', 'specify letters')
+  .argument('[operand]');
 
 program.parse();
 
@@ -361,10 +361,10 @@ $ collect -n 1 2 3 --letter a b c
 Options:  { number: [ '1', '2', '3' ], letter: [ 'a', 'b', 'c' ] }
 Remaining arguments:  []
 $ collect --letter=A -n80 operand
-Options:  { number: [ '80' ], letter: [ 'A' ] }
+Options:  { letter: [ 'A' ], number: [ '80' ] }
 Remaining arguments:  [ 'operand' ]
 $ collect --letter -n 1 -n 2 3 -- operand
-Options:  { number: [ '1', '2', '3' ], letter: true }
+Options:  { letter: true, number: [ '1', '2', '3' ] }
 Remaining arguments:  [ 'operand' ]
 ```
 
@@ -627,7 +627,7 @@ program
 program
   .command('serve')
   .argument('<script>')
-  .option('-p, --port <number>', 'port number', 80)
+  .option('-p, --port <number>', 'port number', '80')
   .action(function() {
     console.error('Run script %s on port %s', this.args[0], this.opts().port);
   });
@@ -952,22 +952,6 @@ program arg --port=80
 
 默认情况下，传入过多的命令参数并不会报错。可以使用`.allowExcessArguments(false)`来启用这一检查。
 
-### 作为属性的遗留选项
-
-在 Commander 7 以前，选项的值是作为属性存储在命令对象上的。
-这种处理方式便于实现，但缺点在于，选项可能会与`Command`的已有属性相冲突。通过使用`.storeOptionsAsProperties()`，可以恢复到这种旧的处理方式，并可以不加改动地继续运行遗留代码。
-
-```js
-program
-  .storeOptionsAsProperties()
-  .option('-d, --debug')
-  .action((commandAndOptions) => {
-    if (commandAndOptions.debug) {
-      console.error(`Called ${commandAndOptions.name()}`);
-    }
-  });
-```
-
 ### TypeScript
 
 如果你使用 ts-node，并有`.ts`文件作为独立可执行文件，那么需要用 node 运行你的程序以使子命令能正确调用，例如：
@@ -998,7 +982,7 @@ const program = createCommand();
 
 一个可执行的子命令会作为单独的子进程执行。
 
-如果使用 node inspector 的`node -inspect`等命令来[调试](https://nodejs.org/en/docs/guides/debugging-getting-started/)可执行命令，对于生成的子命令，inspector 端口会递增 1。
+如果使用 node inspector 的`node --inspect`等命令来[调试](https://nodejs.org/en/learn/getting-started/debugging)可执行命令，对于生成的子命令，inspector 端口会递增 1。
 
 如果想使用 VSCode 调试，则需要在`launch.json`配置文件里设置`"autoAttachChildProcesses": true`。
 
@@ -1059,13 +1043,7 @@ program
 
 ## 支持
 
-当前版本的 Commander 在 LTS 版本的 Node.js 上完全支持。并且至少需要 v18。
+当前版本的 Commander 在 LTS 版本的 Node.js 上完全支持。并且至少需要 v22.12。
 （使用更低版本 Node.js 的用户建议安装更低版本的 Commander）
 
 社区支持请访问项目的 [Issues](https://github.com/tj/commander.js/issues)。
-
-### 企业使用 Commander
-
-作为 Tidelift 订阅的一部分。
-
-Commander 和很多其他包的维护者已与 Tidelift 合作，面向企业提供开源依赖的商业支持与维护。企业可以向相关依赖包的维护者支付一定的费用，帮助企业节省时间，降低风险，改进代码运行情况。[了解更多](https://tidelift.com/subscription/pkg/npm-commander?utm_source=npm-commander&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)

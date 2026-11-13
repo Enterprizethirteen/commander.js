@@ -2,13 +2,13 @@
 
 // This is used as an example in the README for variadic options.
 
-// const commander = require('commander'); // (normal include)
-const commander = require('../'); // include commander in git clone of commander repo
-const program = new commander.Command();
+import { Command } from 'commander';
+const program = new Command();
 
 program
   .option('-n, --number <value...>', 'specify numbers')
-  .option('-l, --letter [value...]', 'specify letters');
+  .option('-l, --letter [value...]', 'specify letters')
+  .argument('[operand]');
 
 program.parse();
 

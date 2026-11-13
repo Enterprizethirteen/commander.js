@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-// const commander = require('commander'); // (normal include)
-const commander = require('../'); // include commander in git clone of commander repo
-const program = new commander.Command();
+import { Command } from 'commander';
+const program = new Command();
 
 // Example program using the command configuration option isDefault to specify the default command.
 

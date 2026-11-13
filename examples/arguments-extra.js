@@ -2,13 +2,20 @@
 
 // This is used as an example in the README for extra argument features.
 
-// const commander = require('commander'); // (normal include)
-const commander = require('../'); // include commander in git clone of commander repo
-const program = new commander.Command();
+import { Command, Argument } from 'commander';
+const program = new Command();
 
 program
-  .addArgument(new commander.Argument('<drink-size>', 'drink cup size').choices(['small', 'medium', 'large']))
-  .addArgument(new commander.Argument('[timeout]', 'timeout in seconds').default(60, 'one minute'))
+  .addArgument(
+    new Argument('<drink-size>', 'drink cup size').choices([
+      'small',
+      'medium',
+      'large',
+    ]),
+  )
+  .addArgument(
+    new Argument('[timeout]', 'timeout in seconds').default(60, 'one minute'),
+  )
   .action((drinkSize, timeout) => {
     console.log(`Drink size: ${drinkSize}`);
     console.log(`Timeout (s): ${timeout}`);

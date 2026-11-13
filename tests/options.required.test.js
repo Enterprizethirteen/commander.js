@@ -1,82 +1,70 @@
-const commander = require('../');
+import * as commander from '../index.js';
+import { createTestCommand } from './testHelpers.js';
+import { test, describe } from 'node:test';
+import assert from 'node:assert/strict';
 
 // option with required value, no default
-describe('option with required value, no default', () => {
+describe('option with required option-argument, no default', () => {
   test('when option not specified then value is undefined', () => {
     const program = new commander.Command();
-    program
-      .option('--cheese <type>', 'cheese type');
+    program.option('--cheese <type>', 'cheese type');
     program.parse(['node', 'test']);
-    expect(program.opts().cheese).toBeUndefined();
+    assert.equal(program.opts().cheese, undefined);
   });
 
   test('when option specified then value is as specified', () => {
     const program = new commander.Command();
-    program
-      .option('--cheese <type>', 'cheese type');
+    program.option('--cheese <type>', 'cheese type');
     const cheeseType = 'blue';
     program.parse(['node', 'test', '--cheese', cheeseType]);
-    expect(program.opts().cheese).toBe(cheeseType);
+    assert.equal(program.opts().cheese, cheeseType);
   });
 
   test('when option value not specified then error', () => {
-    // Arrange. Mock error routine to allow interception.
-    const mockOptionMissingArgument = jest.fn(() => {
-      throw new Error('optionMissingArgument');
-    });
-    const program = new commander.Command();
-    program.optionMissingArgument = mockOptionMissingArgument;
-    program
-      .option('--cheese <type>', 'cheese type');
+    const program = createTestCommand();
+    program.option('--cheese <type>', 'cheese type');
 
     // Act. The throw is due to the above mock, and not default behaviour.
-    expect(() => {
-      program.parse(['node', 'test', '--cheese']);
-    }).toThrow();
-
-    // Assert
-    expect(mockOptionMissingArgument).toHaveBeenCalled();
+    assert.throws(
+      () => {
+        program.parse(['node', 'test', '--cheese']);
+      },
+      {
+        code: 'commander.optionMissingArgument',
+      },
+    );
   });
 });
 
 // option with required value, with default
-describe('option with required value, with default', () => {
+describe('option with required option-argument, with default', () => {
   test('when option not specified then value is default', () => {
     const defaultValue = 'default';
     const program = new commander.Command();
-    program
-      .option('--cheese <type>', 'cheese type', defaultValue);
+    program.option('--cheese <type>', 'cheese type', defaultValue);
     program.parse(['node', 'test']);
-    expect(program.opts().cheese).toBe(defaultValue);
+    assert.equal(program.opts().cheese, defaultValue);
   });
 
   test('when option specified then value is as specified', () => {
     const defaultValue = 'default';
     const program = new commander.Command();
-    program
-      .option('--cheese <type>', 'cheese type', defaultValue);
+    program.option('--cheese <type>', 'cheese type', defaultValue);
     const cheeseType = 'blue';
     program.parse(['node', 'test', '--cheese', cheeseType]);
-    expect(program.opts().cheese).toBe(cheeseType);
+    assert.equal(program.opts().cheese, cheeseType);
   });
 
-  test('when option value not specified then error', () => {
-    // Arrange. Mock error routine to allow interception.
-    const mockOptionMissingArgument = jest.fn(() => {
-      throw new Error('optionMissingArgument');
-    });
+  test('when option value not specified then error', (t) => {
     const defaultValue = 'default';
-    const program = new commander.Command();
-    program.optionMissingArgument = mockOptionMissingArgument;
-    program
-      .option('--cheese <type>', 'cheese type', defaultValue);
+    const program = createTestCommand();
+    program.option('--cheese <type>', 'cheese type', defaultValue);
 
-    // Act. The throw is due to the above mock, and not default behaviour.
-    expect(() => {
-      program.parse(['node', 'test', '--cheese']);
-    }).toThrow();
-
-    // Assert
-    expect(mockOptionMissingArgument).toHaveBeenCalled();
+    assert.throws(
+      () => {
+        program.parse(['node', 'test', '--cheese']);
+      },
+      { code: 'commander.optionMissingArgument' },
+    );
   });
 });
